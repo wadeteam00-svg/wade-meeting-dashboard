@@ -695,9 +695,68 @@
       .stat-grid { grid-template-columns: 1fr; }
       h1 { font-size: 34px; }
     }
+  
+    .site-topbar {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 9px 34px;
+      background: #101010;
+      color: #fff;
+      border-bottom: 3px solid var(--orange);
+    }
+
+    .site-topbar-brand {
+      min-width: 0;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .site-add-meeting {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      padding: 7px 13px;
+      background: var(--orange);
+      color: #fff;
+      border: 1px solid var(--orange);
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: .03em;
+      white-space: nowrap;
+    }
+
+    .site-add-meeting:hover,
+    .site-add-meeting:focus-visible {
+      background: #fff;
+      color: var(--ink);
+      border-color: #fff;
+      outline: none;
+    }
+
+    @media (max-width: 720px) {
+      .site-topbar { padding: 8px 12px; }
+      .site-topbar-brand { display: none; }
+      .site-add-meeting { width: 100%; }
+    }
+
   </style>
 </head>
 <body>
+  <nav class="site-topbar" aria-label="Meeting dashboard navigation">
+    <div class="site-topbar-brand">WADE Meeting Knowledge Base</div>
+    <a class="site-add-meeting" href="/add-meeting.html">+ Add Meeting / 新增會議</a>
+  </nav>
+
   <div class="app-shell">
     <div class="page">
       <header>
