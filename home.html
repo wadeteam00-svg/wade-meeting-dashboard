@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WADE Meeting Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif; background: #f4f4f2; }
+    .topbar { height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 14px; border-bottom: 1px solid #d9d9d4; background: rgba(244,244,242,.96); backdrop-filter: blur(12px); }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .eyebrow { color: #ff4a12; font-size: 10px; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+    .title { color: #101010; font-size: 12px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 12px; border: 1px solid #101010; background: #101010; color: #fff; text-decoration: none; font-size: 11px; font-weight: 950; letter-spacing: .03em; text-transform: uppercase; }
+    .btn:hover { background: #ff4a12; border-color: #ff4a12; }
+    .btn.secondary { background: #fff; color: #101010; border-color: #d9d9d4; }
+    .btn.secondary:hover { color: #ff4a12; border-color: #ff4a12; }
+    iframe { display: block; width: 100%; height: calc(100vh - 48px); border: 0; }
+    @media (max-width: 720px) { .title { display: none; } .topbar { padding: 8px; } .btn { padding: 0 9px; font-size: 10px; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="eyebrow">WADE Meeting Knowledge Base</div>
+      <div class="title">Dashboard viewer + manual meeting input prototype</div>
+    </div>
+    <div class="actions">
+      <a class="btn" href="/add-meeting.html" target="_top">+ Add Meeting / 新增會議</a>
+      <a class="btn secondary" href="/index.html" target="_blank">Open dashboard only</a>
+    </div>
+  </div>
+  <iframe src="/index.html" title="WADE Meeting Dashboard"></iframe>
+</body>
+</html>
