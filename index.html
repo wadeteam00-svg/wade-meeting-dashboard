@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WADE apparel Design review dashboard</title>
+  <style>
+    :root {
+      --bg: #f4f4f2;
+      --panel: #ffffff;
+      --ink: #101010;
+      --muted: #6d6d68;
+      --line: #d9d9d4;
+      --soft: #eeeeea;
+      --orange: #ff4a12;
+      --orange-dark: #e43b08;
+      --shadow: 0 18px 38px rgba(15, 15, 15, 0.07);
+      --radius: 2px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .side-nav {
+      display: none;
+    }
+
+    .logo-mark {
+      width: 62px;
+      height: 62px;
+      margin: 0 auto 28px;
+      display: grid;
+      place-items: center;
+    }
+
+    .logo-mark svg { width: 100%; height: 100%; display: block; }
+
+    .nav-items { display: grid; gap: 2px; }
+
+    .nav-item {
+      height: 54px;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 800;
+      border-left: 4px solid transparent;
+    }
+
+    .nav-item svg { width: 18px; height: 18px; stroke-width: 2; }
+    .nav-item.active { color: var(--orange); border-left-color: var(--orange); background: linear-gradient(90deg, rgba(255,74,18,0.08), rgba(255,74,18,0)); }
+
+    .nav-user {
+      margin-top: auto;
+      padding: 0 16px;
+      font-size: 11px;
+      line-height: 1.35;
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      color: var(--muted);
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 50% 36%, #3b3b3b 0 18%, #111 19% 40%, #d8d8d2 41% 100%);
+      border: 1px solid var(--line);
+      flex: 0 0 auto;
+    }
+
+    .page {
+      min-width: 0;
+      padding: 28px 34px 42px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: -28px -34px 28px;
+      padding: 28px 34px 16px;
+      background: rgba(244,244,242,0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(217,217,212,0.7);
+    }
+
+    .header-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 270px;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--orange);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: clamp(30px, 3.9vw, 56px);
+      line-height: 0.92;
+      margin: 0;
+      letter-spacing: -0.07em;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: #252525;
+      font-size: 12px;
+      line-height: 1.2;
+      max-width: none;
+      font-weight: 650;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-filter {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.035);
+    }
+
+    .header-filter h2 { display: none; }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr 0.85fr 0.85fr 1.55fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .filter-field.search-field { grid-column: auto; }
+
+    label {
+      display: block;
+      margin: 0 0 4px;
+      color: #1b1b1b;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    select, input {
+      width: 100%;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 6px 9px;
+      background: white;
+      color: var(--ink);
+      font-size: 12px;
+      outline: none;
+    }
+
+    select:focus, input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,74,18,0.11); }
+
+    .top-callout {
+      position: relative;
+      min-height: 150px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: white;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      box-shadow: 0 18px 30px rgba(255,74,18,0.22);
+      clip-path: polygon(0 0, 100% 0, 100% 82%, 88% 100%, 0 100%);
+    }
+
+    .top-callout::after,
+    .orange-arrow::after,
+    .card::after,
+    .panel-title-row::after {
+      content: '↗';
+      font-size: 32px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .top-callout strong { font-size: 12px; letter-spacing: 0.02em; }
+    .top-callout .callout-number { font-size: 38px; line-height: 1; font-weight: 900; letter-spacing: -0.06em; }
+    .top-callout span { font-size: 12px; font-weight: 800; }
+
+    main {
+      display: grid;
+      grid-template-columns: 335px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    aside {
+      position: sticky;
+      top: 230px;
+      align-self: start;
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel,
+    .summary-card,
+    .card,
+    .signal {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel { padding: 18px; }
+    .panel + .panel { margin-top: 0; }
+
+    .panel h2,
+    .section-title,
+    .summary-card h3 {
+      margin: 0 0 16px;
+      font-size: 22px;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+
+    .panel-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .panel-title-row::after { color: var(--orange); font-size: 22px; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat {
+      min-height: 104px;
+      padding: 14px;
+      background: linear-gradient(135deg, #f2f2ef, #fbfbf8);
+      border: 0;
+      position: relative;
+    }
+
+    .stat::after {
+      content: '↗';
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      font-weight: 900;
+      color: var(--ink);
+      font-size: 17px;
+    }
+
+    .stat.emphasis {
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: white;
+      clip-path: polygon(0 0, 100% 0, 100% 82%, 86% 100%, 0 100%);
+    }
+
+    .stat.emphasis::after { color: white; font-size: 30px; }
+
+    .stat .number {
+      display: block;
+      margin: 10px 0 3px;
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.07em;
+      color: var(--orange);
+    }
+
+    .stat.emphasis .number { color: white; }
+    .stat .label { color: #222; font-size: 12px; line-height: 1.35; font-weight: 750; }
+    .stat.emphasis .label { color: white; }
+
+    .meeting-meta { color: var(--ink); }
+    .meeting-meta p { margin: 0; color: var(--ink); font-size: 13px; font-weight: 850; }
+    .meeting-meta strong { display: block; margin: 0 0 10px; font-size: 18px; letter-spacing: -0.04em; }
+
+    .meeting-scroll {
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 8px;
+      border-top: 1px solid var(--line);
+      padding-top: 9px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(16,16,16,0.35) transparent;
+    }
+
+    .meeting-scroll::-webkit-scrollbar,
+    .management-focus .management-list::-webkit-scrollbar { width: 6px; }
+    .meeting-scroll::-webkit-scrollbar-track,
+    .management-focus .management-list::-webkit-scrollbar-track { background: transparent; }
+    .meeting-scroll::-webkit-scrollbar-thumb,
+    .management-focus .management-list::-webkit-scrollbar-thumb { background: rgba(16,16,16,0.28); border-radius: 999px; }
+    .meeting-scroll p { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 0; padding: 7px 0; border-bottom: 1px solid #eeeeea; color: #050505; font-size: 12px; line-height: 1.25; }
+
+    .content { min-width: 0; }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    .summary-card { padding: 22px; }
+    .summary-card p { margin: 0; color: #333; line-height: 1.7; font-size: 14px; }
+
+    .management-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      color: #333;
+      line-height: 1.55;
+      font-size: 13px;
+      counter-reset: item;
+    }
+
+    .management-list li {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+
+    .management-list li::before {
+      content: counter(item, decimal-leading-zero);
+      counter-increment: item;
+      color: var(--orange);
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.8;
+    }
+
+    .management-focus .management-list {
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      min-height: 300px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .card::after {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      color: var(--orange);
+      font-size: 26px;
+    }
+
+    .card:hover { transform: translateY(-2px); border-color: rgba(255,74,18,0.45); box-shadow: 0 24px 44px rgba(15,15,15,0.10); }
+
+    .card-top { margin-bottom: 14px; padding-right: 30px; }
+
+    .meeting-name {
+      display: block;
+      margin: 0 0 9px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+      line-height: 1.35;
+    }
+
+    .product-line {
+      font-size: 17px;
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+
+    .issue {
+      color: #121212;
+      font-weight: 800;
+      margin: 9px 0 0;
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .priority { display: none; }
+    .advise-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 12px 0; }
+    .advise-box { border: 0; background: transparent; padding: 0; }
+
+    .advise-box h4,
+    .do-box h4,
+    .dont-box h4 {
+      margin: 0 0 6px;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      font-weight: 950;
+      color: #151515;
+      text-transform: uppercase;
+    }
+
+    .advise-box p,
+    .do-box p,
+    .dont-box p {
+      margin: 0;
+      line-height: 1.62;
+      color: #333;
+      font-size: 12.5px;
+      font-weight: 620;
+    }
+
+    .do-dont-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
+
+    .do-box,
+    .dont-box {
+      border: 1px solid var(--line);
+      background: #fbfbf8;
+      border-radius: 2px;
+      padding: 12px 13px;
+    }
+
+    .do-box { border-left: 4px solid var(--ink); }
+    .dont-box { border-left: 4px solid var(--orange); }
+
+    details { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; background: transparent; }
+    summary { cursor: pointer; font-size: 12px; font-weight: 900; color: var(--orange); }
+    details p { margin: 9px 0 0; color: #4a4a45; line-height: 1.65; font-size: 12.5px; }
+    .tag-row { display: none; }
+
+    .section { margin-top: 34px; }
+
+    .signals {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .signal { padding: 20px; }
+
+    .clickable-stat,
+    .clickable-signal-title,
+    .nav-signal-link {
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .clickable-stat:hover,
+    .clickable-signal-title:hover,
+    .nav-signal-link:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,74,18,0.45);
+      box-shadow: 0 24px 44px rgba(15,15,15,0.10);
+    }
+
+    .signal-detail-page,
+    .product-line-page,
+    .meeting-page,
+    .review-page,
+    .file-page {
+      display: none;
+      min-width: 0;
+    }
+
+    .signal-detail-page.active,
+    .product-line-page.active,
+    .meeting-page.active,
+    .review-page.active,
+    .file-page.active { display: block; }
+
+    .dashboard-page.hidden,
+    footer.hidden { display: none; }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      padding: 0 13px;
+      font-size: 12px;
+      font-weight: 900;
+      border-radius: 2px;
+      cursor: pointer;
+      margin-bottom: 18px;
+    }
+
+    .signal-detail-hero {
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: white;
+      padding: 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 18px 30px rgba(255,74,18,0.18);
+      clip-path: polygon(0 0, 100% 0, 100% 88%, 95% 100%, 0 100%);
+    }
+
+    .signal-detail-hero h2 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      text-transform: uppercase;
+    }
+
+    .signal-detail-hero p {
+      margin: 0;
+      max-width: 860px;
+      color: rgba(255,255,255,0.88);
+      font-size: 13px;
+      line-height: 1.65;
+      font-weight: 750;
+    }
+
+    .signal-detail-grid,
+    .product-line-grid,
+    .meeting-grid,
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .signal-detail-grid .signal { min-height: 170px; }
+
+    .meeting-card,
+    .file-card,
+    .product-line-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      min-height: 220px;
+    }
+
+    .meeting-card h3,
+    .file-card h3,
+    .product-line-card h3 {
+      margin: 0 0 8px;
+      font-size: 21px;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .meeting-card .count,
+    .file-card .count,
+    .product-line-card .count {
+      display: inline-flex;
+      margin: 0 0 14px;
+      color: var(--orange);
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: -0.06em;
+    }
+
+    .meeting-card p,
+    .file-card p,
+    .product-line-card p {
+      margin: 0 0 12px;
+      color: #444;
+      font-size: 13px;
+      line-height: 1.65;
+      font-weight: 650;
+    }
+
+    .meeting-card ul,
+    .file-card ul,
+    .product-line-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #333;
+      font-size: 12.5px;
+      line-height: 1.65;
+      font-weight: 650;
+    }
+
+    .signal strong { display: block; margin-bottom: 8px; font-size: 15px; line-height: 1.3; }
+    .signal p { margin: 0; color: #444; line-height: 1.65; font-size: 13px; }
+
+    .empty { display: none; background: white; border: 1px dashed var(--line); padding: 38px; color: var(--muted); text-align: center; }
+
+    footer { margin-top: 30px; padding: 0; border: 0; }
+
+    .footer-banner {
+      display: grid;
+      grid-template-columns: 1fr minmax(250px, 0.9fr) 270px;
+      min-height: 88px;
+      border: 1px solid var(--line);
+      background: white;
+      overflow: hidden;
+    }
+
+    .footer-copy {
+      padding: 20px;
+      font-weight: 900;
+      font-size: 17px;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-visual {
+      background: radial-gradient(ellipse at 30% 80%, rgba(0,0,0,0.62), transparent 36%), repeating-radial-gradient(ellipse at 50% 90%, #111 0 8px, #2c2c2c 9px 14px, #e8e8e5 15px 22px);
+      clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+      opacity: 0.92;
+    }
+
+    .footer-orange {
+      position: relative;
+      padding: 20px 54px 18px 20px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: white;
+      font-size: 12px;
+      font-weight: 850;
+      clip-path: polygon(0 0, 100% 0, 100% 78%, 86% 100%, 0 100%);
+    }
+
+    .footer-orange strong { display: block; font-size: 16px; margin-bottom: 8px; }
+    .footer-orange::after { content: '↗'; position: absolute; right: 18px; top: 18px; font-size: 30px; font-weight: 900; }
+
+    table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--line); }
+    th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 14px; line-height: 1.5; }
+    th { background: #eeeeea; color: #222; font-size: 12px; letter-spacing: 0.06em; }
+    tr:last-child td { border-bottom: none; }
+    .status-pill { display: inline-block; border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 900; background: #eeeeea; white-space: nowrap; }
+
+    @media (max-width: 1280px) {
+      .cards, .signals, .signal-detail-grid, .product-line-grid, .meeting-grid, .file-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .header-grid { grid-template-columns: 1fr; }
+      .top-callout { min-height: 120px; }
+    }
+
+    @media (max-width: 1050px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .side-nav { position: relative; height: auto; flex-direction: row; align-items: center; padding: 14px; overflow-x: auto; }
+      .logo-mark { width: 46px; height: 46px; margin: 0 14px 0 0; flex: 0 0 auto; }
+      .nav-items { display: flex; gap: 4px; }
+      .nav-item { height: 42px; grid-template-columns: 18px auto; border-left: 0; border-bottom: 3px solid transparent; min-width: max-content; }
+      .nav-item.active { border-bottom-color: var(--orange); background: rgba(255,74,18,0.06); }
+      .nav-user { display: none; }
+      .page { padding: 22px; }
+      header { margin: -22px -22px 22px; padding: 22px; }
+      main, .summary { grid-template-columns: 1fr; }
+      aside { position: static; }
+      .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filter-field.search-field { grid-column: 1 / -1; }
+      .footer-banner { grid-template-columns: 1fr; }
+      .footer-visual { min-height: 80px; clip-path: none; }
+    }
+
+    @media (max-width: 780px) {
+      .cards, .signals, .signal-detail-grid, .product-line-grid, .meeting-grid, .file-grid { grid-template-columns: 1fr; }
+      .filter-grid { grid-template-columns: 1fr; }
+      .filter-field.search-field { grid-column: auto; }
+      .stat-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="page">
+      <header>
+        <div class="header-grid">
+          <div>
+            <div class="eyebrow">WADE apparel design management</div>
+            <h1>Design review dashboard</h1>
+            <p class="subtitle">WADE apparel 設計管理與會議洞察總覽｜把每一次設計會議紀要轉化為可追蹤的設計評論、建議、產品中分類行動項和重複設計信號。</p>
+
+            <div class="header-filter filter-panel">
+              <h2>篩選</h2>
+              <div class="filter-grid">
+                <div class="filter-field">
+                  <label for="meetingFilter">會議</label>
+                  <select id="meetingFilter">
+                    <option value="all">全部會議</option>
+                  </select>
+                </div>
+
+                <div class="filter-field">
+                  <label for="categoryFilter">產品中分類</label>
+                  <select id="categoryFilter">
+                    <option value="all">全部產品中分類</option>
+                  </select>
+                </div>
+
+                <div class="filter-field">
+                  <label for="seasonFilter">季節</label>
+                  <select id="seasonFilter">
+                    <option value="all">全部季節</option>
+                  </select>
+                </div>
+
+                <div class="filter-field">
+                  <label for="seriesFilter">系列</label>
+                  <select id="seriesFilter">
+                    <option value="all">全部系列</option>
+                  </select>
+                </div>
+
+                <div class="filter-field search-field">
+                  <label for="search">搜尋</label>
+                  <input id="search" placeholder="搜尋會議、議題、關鍵字..." />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="top-callout">
+            <strong>目前最重要的管理重點</strong>
+            <div class="callout-number">03</div>
+            <span>專注於關鍵決策與設計信號</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="dashboard-page" id="dashboardPage">
+        <aside>
+      <div class="header-snapshot panel">
+        <div class="panel-title-row"><h2>總覽快照</h2></div>
+        <div class="stat-grid">
+          <div class="stat"><span class="label">目前整合會議</span><span class="number">45</span><span class="label">設計 / 策略會議</span></div>
+          <div class="stat"><span class="label">設計評論卡片</span><span class="number" id="totalCards">0</span><span class="label">即時篩選結果</span></div>
+          <div class="stat clickable-stat" id="openSignalsStat" role="button" tabindex="0" aria-label="查看完整重複設計信號"><span class="label">重複設計信號</span><span class="number" id="totalSignals">0</span><span class="label">需持續關注</span></div>
+          <div class="stat emphasis"><span class="label">目前最重要的<br>管理重點</span><span class="number">03</span><span class="label">查看重點議題</span></div>
+        </div>
+      </div>
+
+      <div class="meeting-meta panel">
+        <div class="panel-title-row"><h2>目前整合會議</h2></div>
+        <strong>45 場設計 / 策略會議</strong>
+        <div class="meeting-scroll">
+          <p>2026-06-16｜Q3 及未來季度產品規劃與 At Pleasure 風格探討</p>
+          <p>2026-06-16｜產品設計與開發會議：運動長褲與 T 恤</p>
+          <p>2026-06-15｜籃球品類店 Q2 系列產品評審</p>
+          <p>2026-06-11｜2026Q4 產品規劃與訂貨會復盤分析</p>
+          <p>2026-06-08｜品類店籃球文化使命更新與 AI 應用策略</p>
+          <p>2026-06-05｜籃球文化與產品理念深化研討</p>
+          <p>2026-06-05｜產品設計評審與銷售策略會議</p>
+          <p>2026-06-04｜27Q2 品類店籃球文化系列研發與市場定位策略</p>
+          <p>2026-05-26｜DLo 27SS 項目回顧與流程復盤</p>
+          <p>2026-05-28｜27Q2 WADE Studio Workshop 01｜Game Day Collection</p>
+          <p>27Q2 WADE Studio｜服裝系列設計評審與開發策略</p>
+          <p>2026-05-11｜DLo 27SS 100DR 服裝系列設計評審</p>
+          <p>2026-05-04｜WADE Studio 產品開發與系列設計</p>
+          <p>2026-05-04｜DLo 27SS Graphic / Colour Review</p>
+          <p>DLo 27SS Colour Review｜Q3 色彩方案與圖形設計討論</p>
+          <p>DLo 27SS｜六月 Master Graphic、顏色方案及面料選擇討論</p>
+          <p>2026-04-16｜DLo 27SS 面料申報與設計方向</p>
+          <p>2026-04-15｜DLo 27SS 季度產品開發與面料策略</p>
+          <p>2026-04-10｜27Q1 CR2 CEO Review 籃球服裝品類策略</p>
+          <p>27Q1 Dragon Store 80DR｜產品開發與品牌策略</p>
+          <p>2026-04-08｜3月與6月服裝系列主題及設計方向</p>
+          <p>2026-03-26｜DLo 27SS 目標客群洞察與面料工藝策略</p>
+          <p>2026-03-25｜DLo 27SS AI 輔助設計項目與方案評審</p>
+          <p>2026-03-18｜藝術家作品商業化設計調整溝通會</p>
+          <p>2026-03-16｜聖誕系列產品顏色策略與搭配方案</p>
+          <p>2026-03-13｜Q4 韋德 Premium Collection 產品策劃</p>
+          <p>WADE Premium｜產品設計方案調整</p>
+          <p>2026-03-04｜WADE Premium 產品設計與開發討論</p>
+          <p>2026-03-12｜雙旦 QS 80DR External Recap 產品開發與設計評審</p>
+          <p>2026-03-06｜聖誕系列服裝產品評審與開發討論</p>
+          <p>2026-03-05｜聖誕系列產品設計及銷售復盤</p>
+          <p>服裝款式規劃與設計討論｜聖誕系列 10 款規劃</p>
+          <p>2026-03-02｜雙旦包裹 Phase II 項目研討</p>
+          <p>26Q4 Goodman CR1｜衛衣及外套款式討論</p>
+          <p>Q4 Dragon Store｜Red Line 品牌視覺討論</p>
+          <p>2026-02-26｜26Q4 龍店 Phase I Research Review</p>
+          <p>2026-02-26｜雙旦 QS Phase I Review 創意簡報</p>
+          <p>2026-02-25｜香港本地球迷款產品討論</p>
+        </div>
+      </div>
+
+    </aside>
+
+    <section class="content">
+      <div class="summary">
+        <div class="summary-card">
+          <h3>總匯設計判斷</h3>
+          <p>目前 dashboard 已整合 41 場設計 / 策略 / 流程復盤會議，全部以具體設計評論卡片呈現。整體判斷指向同一件事：WADE / DLo / 籃球服裝的產品設計需要從「設計師喜歡什麼」升級到「目標客群在具體場景中需要什麼」，並同時回應品牌健康度、折扣水平、上市季節、區域氣候、面料申報、流程效率與商業增長。</p>
+        </div>
+        <div class="summary-card management-focus">
+          <h3>目前最重要的管理重點</h3>
+          <ul class="management-list">
+            <li>第一，移除模板式設計評論；沒有完整紀要的會議只標記為待補，不再生成假具體卡片。</li>
+            <li>第二，DLo 100DR 要把 AI 水彩、仿繡花、隨機 placement、價位工藝邊界和面料故事放在同一套評審邏輯中。</li>
+            <li>第三，AI 圖只能作為溝通工具，正式評審必須有 P 圖、基礎款 mockup、成衣效果或實物參考。</li>
+            <li>第四，面料申報必須雙軌管理：Plan A 新報、Plan B 已驗證舊面料，同時控制 MOQ、成本和吊牌 / Blend 表達。</li>
+            <li>第五，長周期面料、提花、滿印和特殊工藝必須在交接節點前啟動，不可等選款後才補。</li>
+            <li>第六，DLo 長 T 的功能賣點要對應 3-5 月溫差、吸濕速乾、輕薄透氣與 Tencel 親膚價值。</li>
+            <li>第七，399 元短褲、699 元衛褲等高價位產品必須有外顯價值，讓消費者看得見、摸得到、說得出。</li>
+            <li>第八，WADE Studio 的高級感應由隱蔽工藝、Signature Red 層次、扣具、內外呼應和遠距離識別建立。</li>
+            <li>第九，WADE 必須擺脫對球星個人影響力的過度依賴，建立高級時尚與質感生活的產品心智。</li>
+            <li>第十，反伍要從單品潮流升級為街頭生態，通過城市 IP、聯賽、潮玩音樂和事件營銷吸引年輕人。</li>
+            <li>第十一，改善折扣水平是品類級任務；設計階段就要建立正價理由、售罄邏輯和品牌健康度。</li>
+            <li>第十二，嚴禁好產品賣錯季節；外穿薄外套、功能短褲和區域氣候敏感款必須匹配上市窗口。</li>
+            <li>第十三，Graphics 研究必須能落到成衣；靈感、故事、placement、工藝、洗水、面料和上市節奏要連成一條線。</li>
+            <li>第十四，色彩不能只看好不好看，要定義角色、比例、搭配對象、情緒價值和銷售場景。</li>
+            <li>第十五，版型趨勢要逐步過渡；短身、寬鬆、氣球褲等趨勢需要與真實客群接受度平衡。</li>
+            <li>第十六，每一項待辦必須對應責任人、時間節點和可回看的樣辦 / 文件，不再只停留在會議意見。</li>
+            <li>第二十七，Premium Collection 必須用黑紅白、Premium Red、羊毛混紡、陽極氧化五金和旗艦店驗證，形成完整高端系統，而不是單款提價。</li>
+            <li>第二十八，聖誕產品必須從銷售復盤出發，落單量、售罄率、庫存壓力、華南氣候與 499 價值點要一起進入設計決策。</li>
+            <li>第二十九，雙旦 QS 開發要把 AI 圖案簡化、數據前置、格子工藝可行性、桃皮絨對比樣板和低調口袋放在同一條流程管理。</li>
+            <li>第三十，WADE Premium 的 Confidence 24/7 必須把工作、差旅、社交、保暖、抗皺、抗味和低碳故事整合成可售賣的產品語言。</li>
+            <li>第二十七，V5 補齊的低日期會議確認：雙旦、龍店、Red Line、Goodman、Premium 包裝與香港球迷款都必須從「單款意見」升級為系統化設計規則。</li>
+            <li>第二十八，龍店與 Premium Line 應統一指向城市時尚高端客群，以圓標、Monogram、非傳統剪裁和外簡內暖功能建立長期心智。</li>
+            <li>第二十九，雙旦 Phase I / II 要先定義情緒價值、人群分層與 TRS 菜單，再分配格仔、圍巾、絲帶、雪花、羊羔絨和可拆卸配件。</li>
+            <li>第三十，Goodman CR1 必須收斂版本、統一套裝語言、避免競品誤讀，並以一件一個完整圓標建立更克制的品牌識別。</li>
+            <li>第三十一，Premium 體驗需延伸至 labelling、包裝、吊牌、冷織 POLO、Fidlock 扣具與 SKU 控制，形成完整高端系統。</li>
+            <li>第二十七，DLo 27SS Q3 色彩必須明確主次比例，紅色排除後以藍、綠、大地色和灰色建立更鬆弛的田園色彩系統。</li>
+            <li>第二十八，Highlight Color 應以 3%-5% 面積落在抽繩、車線、Branding 與輔料上，而不是只靠大面積圖案表達。</li>
+            <li>第二十九，Graphic Menu、工藝選擇與成本預估必須前置，先用成本反推設計可行性，再進入正式開發。</li>
+            <li>第三十，六月 DLo Master Graphic 必須在保留四格品牌辨識度的同時做結構升級，避免系列圖形再次重複。</li>
+            <li>第三十一，六月 Color Story 要明確區分三月與六月：三月偏綠與大地色，六月則以黑白藍、青綠和白色畫布建立更清爽的視覺語氣。</li>
+            <li>第三十二，夏季紋理面料與套裝開發必須先過舒適度檢查，厚硬樹皮紋不可直接沿用，同布多品類開發需建立完整可行性驗證。</li>
+            <li>第三十三，DLo 項目必須先確認 Target Consumer、Product Style 和 Pattern Direction，再進入 PCM；流程 gate 不可倒置。</li>
+            <li>第三十四，所有外部 review 必須準備多套 Options，並使用批量 feedback 機制集中處理意見，避免零散反饋造成反覆返工。</li>
+            <li>第三十五，Visual Story 與 Product Style 必須分開管理：主題可以變，但品牌 DNA、產品語言和季度差異化邏輯要穩定。</li>
+            <li>第三十七，27Q2 WADE Studio 的 AI 效果圖必須從「普通 model」升級為有職業身份、配件、個性與故事的角色設定。</li>
+            <li>第三十八，499+ 內搭 T 的價值感不能靠大 Logo 或廉價印花，而要靠面料、剪裁、金屬圓標 / 手釘、低調織帶和隱性品牌識別建立。</li>
+            <li>第三十九，Studio 功能面料應優先探索微孔沖孔等「外觀乾淨但功能真實」的技術，避免直接落入訓練服感或厚重科技面料。</li>
+            <li>第三十三，27Q2 品類店 Research 必須回到籃球文化本身，所有 trend、工藝、配件和 AI 人物都要讓籃球迷看得懂。</li>
+            <li>第三十四，品類店必須建立 100% 專供策略，切斷對大貨款式與大貨數據的依賴，以客群、場景、鞋服搭配和情緒價值重新建構。</li>
+            <li>第三十五，WADE Studio 高級運動休閒要把功能面料、灰階色彩、紅色點綴、密針細節和完整 Look Strategy 放在同一套評審中。</li>
+            <li>第四十，27Q2 WADE Studio Game Day 要以觀賽、日常、聚會三個場景建立 Look Strategy，所有單品必須清楚分工為內搭、外穿、Essential 或 Statement Piece。</li>
+            <li>第四十一，Game Day 南北區域必須用氣候與克重管理產品邏輯，3 月與 4 月的面料厚薄、短衛褲與休閒短褲不能混為一談。</li>
+            <li>第四十二，Game Day 的圖案與色彩需從籃球場元素、速度感、球衣線條與黑白紅灰品牌底盤出發，再用 Combo B 增加藍 / 綠點綴的新鮮感。</li>
+            <li>第三十六，品類店所有產品必須回答「為什麼應該在籃球品類店出現」，以籃球文化、情緒價值和身份認同作為第一評審門檻。</li>
+            <li>第三十七，籃球文化系列要用減法建立更廣泛受眾，避免過度球星化、過度比賽化或過度潮流化。</li>
+            <li>第三十八，Presentation 必須從設計稿展示升級為銷售工具，補齊價格、SKU、上市月份、面料技術數據和核心利益。</li>
+            <li>第三十九，27Q1 / Q3 / Q4 產品矩陣需按 Basics、Hello Fame、Training、At Pleasure 等策略角色拆分，避免所有產品承擔同一任務。</li>
+            <li>第四十，AI 應成為並行生圖、Research 分析、Prompt 標準化和提案效率工具，但核心取捨仍由設計團隊完成。</li>
+            <li>第四十一，At Pleasure 與 Aprse 方向要以功能休閒、松弛混穿和低調 premium 表達取代過度熱血的球場敘事。</li>
+            <li>第四十二，Q3 athletic leisure 要一件強運動單品配通勤元素，建立可上班、可活動、可聚會的精緻運動休閒語境。</li>
+            <li>第四十三，籃球品類店產品必須讓籃球信息大於 Way 元素，面料、graphic、工藝都要服務「為何進入品類店」的理由。</li>
+            <li>第四十四，新面料專案要從布料推廣升級為生意 package：場景、數據目標、三年增長曲線、設計圖和交接節點必須一起管理。</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 class="section-title">設計評論卡片</h2>
+      <div id="cards" class="cards"></div>
+      <div id="empty" class="empty">沒有符合條件的評論，請調整篩選。</div>
+
+      <div class="section">
+        <h2 class="section-title clickable-signal-title" id="openSignalsTitle" role="button" tabindex="0" aria-label="查看完整重複設計信號">重複設計信號</h2>
+        <div class="signals">
+          <div class="signal"><strong>從設計師視角轉向客群視角</strong><p>設計判斷不能只基於個人審美，要回到客群年齡、場景、氣候、心理需求和穿著行為。</p></div>
+          <div class="signal"><strong>高價值產品必須被看見</strong><p>699 元衛褲、399 元短褲等產品，必須通過結構、面料、五金、工藝或功能讓消費者感知價值。</p></div>
+          <div class="signal"><strong>功能賣點要有場景根據</strong><p>吸濕速乾、溫差適應、輕薄透氣、彈性舒適，都需要對應具體季節與穿著場景。</p></div>
+          <div class="signal"><strong>品牌識別要低調但明確</strong><p>WADE 不應依靠大 Logo，而應通過 Signature Red、隱藏細節、觸感工藝和遠距離符號建立記憶。</p></div>
+          <div class="signal"><strong>面料與供應風險必須前置</strong><p>新面料申報存在時間、成本、MOQ 和檢測風險，設計初期就要與供應鏈共同設定備案。</p></div>
+          <div class="signal"><strong>面料申報必須雙軌管理</strong><p>每款新面料都要同步準備 Plan A 新報方案與 Plan B 已驗證備案，並在設計初期確認 MOQ、吊牌與 Blend 風險。</p></div>
+          <div class="signal"><strong>圖案靈感要有邏輯，不要只有表象</strong><p>瓷磚紋樣、田園風、水彩風都不能只是複製視覺，需要先拆解結構、情緒、場景和客群，再轉化為圖案語言。</p></div>
+          <div class="signal"><strong>Graphics 研究必須能落到成衣</strong><p>研究、故事、視覺元素、工藝、面料、洗水和上市節奏必須連成一條線，否則前期研究會變成無效輸入。</p></div>
+          <div class="signal"><strong>AI 只能作為溝通工具</strong><p>AI 圖不能取代實物、面料、顏色和版型判斷。正式評審需要可落地的款式圖、模型圖或 P 圖方案。</p></div>
+          <div class="signal"><strong>長周期面料要提前啟動</strong><p>提花、滿印、特殊工藝與新面料不應等選款後才開始，必須在交接節點前完成圖案與供應可行性確認。</p></div>
+          <div class="signal"><strong>設計評審必須包含 GP 意識</strong><p>新面料、專利技術、提花和特殊工藝都必須同時評估成本、售價、毛利率和消費者感知價值。</p></div>
+          <div class="signal"><strong>折扣改善是產品設計責任</strong><p>如果產品缺少差異化、故事、場景和質感，就只能靠折扣驅動。正價理由必須在設計階段建立。</p></div>
+          <div class="signal"><strong>嚴禁好產品賣錯季節</strong><p>外穿薄外套、季節轉換款和區域氣候敏感款必須在設計階段確認最佳上市窗口。</p></div>
+          <div class="signal"><strong>品牌要擺脫單一資源依賴</strong><p>韋德不能只依賴球星本人，反伍不能只依賴單品潮流，兩者都需要建立可持續的品牌心智和事件節奏。</p></div>
+          <div class="signal"><strong>松弛感不是裝飾風格，是刪減能力</strong><p>DLo 的松弛感需要減少文字、圖案層疊和裝飾線條，用留白、手繪感、低飽和和面料肌理建立自然感。</p></div>
+          <div class="signal"><strong>溫度感要從材料和輔料長出來</strong><p>鄉村感不應只靠印花或繡花表現，應優先使用織帶、手工線、肌理面料和冷門輔料建立真實手感。</p></div>
+          <div class="signal"><strong>靈感必須先判斷文化語境</strong><p>腰果花、瓷磚、Paisley、莊園等元素進入系列前，要先確認原始語境是否適合 DLo 的客群與主題。</p></div>
+          <div class="signal"><strong>Core Consumer 願意為高品質基礎款付費</strong><p>DLo 的中間帶機會在於質感、舒適、得體和可負擔的高品質基礎款，而不是平價大眾或昂貴高端。</p></div>
+          <div class="signal"><strong>舒適度必須由物理功能支撐</strong><p>松弛感不能只靠視覺氛圍，還需要纖維成分、彈性回彈、透氣、溫調和後處理工藝支撐。</p></div>
+          <div class="signal"><strong>AI 洞察必須人工核查</strong><p>AI 可以提高研究效率，但面料功能、消費者結論、價格策略和產品判斷必須由人工 Fact-check。</p></div>
+          <div class="signal"><strong>AI 輸出需要分客群 Channel 管理</strong><p>Corner、Leader 等不同客群不能共用同一套 AI 溝通方式，否則會造成風格混淆與策略失焦。</p></div>
+          <div class="signal"><strong>高品質基礎款也需要記憶點</strong><p>貼袋、織帶、肌理面料、洗水和版型比例可以成為低聲量但有效的產品記憶點。</p></div>
+          <div class="signal"><strong>試穿是版型策略的必要環節</strong><p>微寬鬆、七分褲、大闊腿、西褲與外套長度都必須通過實物試穿確認比例，不能只靠 AI 圖或紙面判斷。</p></div>
+          <div class="signal"><strong>色彩不是深淺問題，是組合問題</strong><p>暗不暗要同時看底色、圖案色、對比度、層次、貨架距離和節日氛圍，而不是只看單一色值。</p></div>
+          <div class="signal"><strong>Color Story 必須服務銷售搭配</strong><p>每個顏色都要回答跟誰搭、賣給誰、放在哪個層級，才能支持 MD、導購和顧客決策。</p></div>
+          <div class="signal"><strong>SKU 控制也是設計能力</strong><p>格子、顏色和節日元素不能貪多，4-5 個核心色與 2 種格子更有利於形成家族感和商業效率。</p></div>
+          <div class="signal"><strong>高端化必須有材料與毛利雙支撐</strong><p>羊毛混紡、金屬輔料、Premium Red 和 Clean 版型要共同支撐 599-699 價格帶，同時不能失去 GP 可行性。</p></div>
+          <div class="signal"><strong>高風險視覺方案必須有 Plan B</strong><p>紅黑漸變、特殊工藝和高端材料都需要同步準備撞色、純色或小面積點綴等備案，避免樣衣失敗拖慢上市。</p></div>
+          <div class="signal"><strong>高端線應先用旗艦店驗證</strong><p>Premium Collection 這類高定位項目應先控制 MOQ，在旗艦店和重點區域驗證客群反應，再擴大渠道。</p></div>
+          <div class="signal"><strong>數據要在落筆前進入設計</strong><p>設計師不能在完成方案後才收到銷售數據。即使數據不完整，也應提前用來判斷方向，減少無效設計。</p></div>
+          <div class="signal"><strong>工藝創意必須先過供應商可行性</strong><p>雙層提花、滿地繡、格子面料和特殊刺繡都需要先確認工廠能力、成本與交期，再進入正式打版。</p></div>
+          <div class="signal"><strong>低調功能比外顯裝飾更有效</strong><p>口袋、袋口和功能細節不一定要外露才有價值。低調、隱蔽、實用的設計更符合當前商品反饋。</p></div>
+          <div class="signal"><strong>節日系列要先定義爆款標杆</strong><p>聖誕產品不應從零開始堆元素，而應基於已被市場驗證的長青款，重新演繹節日版本。</p></div>
+          <div class="signal"><strong>文字只能襯托，圖形才是主角</strong><p>節日設計不能靠全文字或大量口號撐起氛圍，圖形、工藝、材料和比例才是核心表達。</p></div>
+          <div class="signal"><strong>節日感也需要銷售通用性</strong><p>不是所有款都要做重聖誕色彩。部分款式需要保持日常可穿，延長銷售週期並降低庫存風險。</p></div>
+          <div class="signal"><strong>落單量不等於真需求</strong><p>紅色售罄率高、黃色轉化弱說明色彩策略要同時看落單量、售罄率和核心客群匹配度。</p></div>
+          <div class="signal"><strong>庫存問題要在設計前端解決</strong><p>1200-1800 件庫存壓力不應只靠大幅折扣處理，應透過微更新、細節升級和更準確的客群判斷降低風險。</p></div>
+          <div class="signal"><strong>區域氣候決定節日產品厚薄</strong><p>華南聖誕衛衣與外套需要平衡保暖、搭配和穿著時間，不能完全按北方冬季厚度邏輯設計。</p></div>
+          <div class="signal"><strong>Premium 要從通勤功能升級到全天候自信</strong><p>Confidence 24/7 應把工作、差旅、社交、輕運動和環保低碳串成一套高端產品故事。</p></div>
+          <div class="signal"><strong>功能材料必須對應具體痛點</strong><p>羊毛混紡、抗皺面料、片狀羽絨和木質皮帶扣都要對應除味、久坐、溫差、小雨和安檢等真實場景。</p></div>
+          <div class="signal"><strong>高端細節要有視覺錨點</strong><p>圓形標識、紅色線條、金屬拉鏈頭和木質扣件應形成可複製的 Premium 細節系統，而不是單點裝飾。</p></div>
+          <div class="signal"><strong>Premium 體驗要延伸到包裝與吊牌</strong><p>高端線不能只升級成衣，labelling、吊牌、包裝袋與開箱體驗也要形成獨立識別。</p></div>
+          <div class="signal"><strong>少而精是高端線的 SKU 原則</strong><p>Premium 要堅持貴精不貴多，用少量核心款、清晰五金細節、紅色語言和材料質感建立完整系統。</p></div>
+          <div class="signal"><strong>可操作扣具是可感知功能價值</strong><p>磁石扣、Fidlock、木質皮帶扣等細節能把 Premium 功能變成使用者一上手就能感知的價值。</p></div>
+          <div class="signal"><strong>Collection Map 是跨部門共識工具</strong><p>款式、面料、圖案、版型和工藝轉法必須放在同一張 map 中，讓設計、PM、CM 和開發看到同一套邏輯。</p></div>
+          <div class="signal"><strong>已驗證爆款要做微升級</strong><p>華夫格這類已售罄款不應大改，而要保留商業 DNA，從面料手感、拉鏈和局部節日細節做升級。</p></div>
+          <div class="signal"><strong>聖誕款也要保留節後可穿性</strong><p>短袖、長 T、長褲等品類的聖誕元素要控制面積與位置，避免產品成為只能節日穿的紀念款。</p></div>
+          <div class="signal"><strong>TRS / Graphic Menu 要先於單款設計</strong><p>雙旦 Phase II 應先把格仔、絲帶、雪花、圍巾、織帶、毛感工藝與成本放入菜單，再分配到各款式。</p></div>
+          <div class="signal"><strong>節日元素要中性化延長生命周期</strong><p>絲帶、雪花、星星、圓形波波和 Love and Passion 需要分層使用，避免產品過度季節化造成庫存風險。</p></div>
+          <div class="signal"><strong>可拆卸配件能提升穿著壽命</strong><p>可拆卸圍巾、袖口或格仔配件能讓產品在節日與日常之間切換，但必須先確認紙樣、扣具和拆後外觀。</p></div>
+          <div class="signal"><strong>CR1 要敢於收斂版本</strong><p>人力不足時應優先推進最能代表品牌識別和成衣差異的方案，避免漸變圖案、格仔圖案等多線並行拖慢節奏。</p></div>
+          <div class="signal"><strong>套裝細節必須上下身同語言</strong><p>打斜、打直、織帶、拼接、圖案方向都要形成一套邏輯，否則套裝會像兩件不同系列產品。</p></div>
+          <div class="signal"><strong>競品符號誤讀要提前避開</strong><p>織帶比例、三格配色、拉鏈光澤和圓標數量都可能造成品牌誤讀或視覺廉價感，必須在 CR1 直接修正。</p></div>
+          <div class="signal"><strong>Red Line 是可延展品牌符號</strong><p>紅線不應被固定為單一紅黑線，而應像 Canon 紅圈或 Product Red 一樣承載高端、功能或品牌簽名意義。</p></div>
+          <div class="signal"><strong>紅黑白比紅黑更有生命力</strong><p>黑色提供高級底盤，白色提供呼吸感，紅色提供記憶點；三色比例可依品類與場景靈活變化。</p></div>
+          <div class="signal"><strong>紅色比例決定高級或廉價</strong><p>紅色少了沒有識別，太多會有促銷感；應精準放在邊線、拉鏈、五金、內裡、圓標、包裝或陳列導視上。</p></div>
+          <div class="signal"><strong>龍店要從商務安全牌轉向城市時尚牌</strong><p>Premium Line 的客群不想穿成傳統高管或保險業務員，而是要有質感、功能與時尚自信。</p></div>
+          <div class="signal"><strong>圓標是龍店高端識別核心</strong><p>紅黑條應退居二線，圓標、Monogram、菱形變體與高端輔料要形成至少四季穩定使用的識別系統。</p></div>
+          <div class="signal"><strong>高端通勤要靠非傳統剪裁更新</strong><p>闊腿褲、Oversized、空氣層、潛料和可疊穿比例能讓通勤產品擺脫老派行政感。</p></div>
+          <div class="signal"><strong>外簡內暖是龍店功能高端方向</strong><p>外型保持簡潔，內在用毛絨內襯、片狀羽絨、高科技保暖和功能面料製造可感知價值。</p></div>
+          <div class="signal"><strong>雙旦 Phase I 是情緒價值項目</strong><p>節日產品的購買理由不是功能本身，而是聚會、打卡、送禮、情侶穿搭和圈層認同帶來的情緒價值。</p></div>
+          <div class="signal"><strong>雙旦客群要分層設計</strong><p>Core Consumer 要低調參與，Mood Follower 要整體 Look，Maker 要 Bold Statement；三者不能共用同一套圖案強度。</p></div>
+          <div class="signal"><strong>聖誕圍巾是可拆解的設計母題</strong><p>圍巾不只是一件配飾，它的格紋、毛感、流蘇、邊緣和包裹感都能轉化到領口、帽口、織帶和假兩件結構。</p></div>
+          <div class="signal"><strong>499 節日產品必須升級面料</strong><p>當入門價格提升到 499 元，羊羔絨、雪尼爾、毛呢和升級華夫格必須提供可觸摸的溫暖感與禮物感。</p></div>
+          <div class="signal"><strong>本地球迷款要先確保低錯誤率</strong><p>小批量本地化產品容易被語法、拼寫、標籤、贊助信息和球隊故事細節放大，必須雙人覆核。</p></div>
+          <div class="signal"><strong>球迷產品要預設社群銷售出口</strong><p>團購、球隊備用裝備、社群訂購和本地活動應在商品計劃前期進入，而不是賣不完才補救。</p></div>
+          <div class="signal"><strong>品類店產品必須有進店理由</strong><p>每件產品都要說清楚為什麼屬於籃球品類店，而不是普通大貨或生活方式店。</p></div>
+          <div class="signal"><strong>籃球文化要用減法表達</strong><p>網布、織帶、號碼、球場線條和球迷配飾要克制轉譯，不應堆滿所有元素。</p></div>
+          <div class="signal"><strong>Presentation 是銷售工具</strong><p>價格、SKU、上市月份、功能利益和面料數據要與 Look 同頁出現，方便 MD 和客戶快速判斷。</p></div>
+          <div class="signal"><strong>At Pleasure 是無痛轉場</strong><p>功能外套、Polo、工裝褲、風衣和高質感面料應支持通勤、運動、社交之間自然切換。</p></div>
+          <div class="signal"><strong>AI 工作流要並行而非等待</strong><p>多帳號、多 Board、多工具並行可縮短生成時間，但最終審美、商業與文化取捨仍要人工決策。</p></div>
+          <div class="signal"><strong>籃球品類店不能被泛潮流帶偏</strong><p>K-pop、Quiet Luxury、泛戶外和金屬徽章等方向若不能被籃球迷理解，就不應成為主線。</p></div>
+          <div class="signal"><strong>AI research 必須人工紀要與 source 分層</strong><p>AI 生成的術語、圖表和案例不能直接進入決策；必須先按來源、有效性和籃球相關度篩選。</p></div>
+          <div class="signal"><strong>品類店要從鞋服搭配建立 Key Look</strong><p>籃球消費者高度關注球鞋，服裝比例、褲型、配色和配件必須與球鞋文化一起設計。</p></div>
+          <div class="signal"><strong>高級運動休閒要用功能隱性化表達</strong><p>冰感、抗菌、透氣等功能應透過面料、織法、車線和比例變成可穿的 Studio 語言，而不是訓練服參數。</p></div>
+          <div class="signal"><strong>AI 人物圖需要角色設定</strong><p>Studio 系列的 AI 模特不能只有好看外表，必須透過職業配件、紋身、飾物、姿態和場景建立可被記住的人物身份。</p></div>
+          <div class="signal"><strong>高端內搭要靠隱性價值</strong><p>499 元以上的內搭 T 應靠面料、結構、金屬小件、手釘和低調織帶建立價值，而不是靠大面積印花。</p></div>
+          <div class="signal"><strong>黑魂風格的紅色只能點到即止</strong><p>紅色在黑色基底上容易變得張揚，Studio 應把紅色控制在紅點、微漸變或細線這類克制細節上。</p></div>
+          <div class="signal"><strong>功能面料要保持 Studio 的乾淨外觀</strong><p>微孔沖孔比訓練服感科技面料更適合 Studio，因為它能在外觀完整的前提下提供透氣功能。</p></div>
+          <div class="signal"><strong>六月必須和三月看起來不一樣</strong><p>同一個系列裡，不同月份的 Color Story 也要有季節區隔；六月應比三月更清爽、更有空氣感，而不是延續同樣的綠與大地色語氣。</p></div>
+          <div class="signal"><strong>AI 圖最適合做情緒素材庫</strong><p>水彩、漸變、治癒感背景可以由 AI 提供方向，但最終成衣圖形仍需經過人工重組與品牌語言轉譯。</p></div>
+          <div class="signal"><strong>夏季紋理面料先看舒適度再看故事</strong><p>樹皮紋、大花提花等概念再好，如果面料厚、硬、不透氣，就不適合夏季短褲與外套開發。</p></div>
+          <div class="signal"><strong>同布多品類能強化系列一致性</strong><p>一塊布同時開發長褲、短褲與外套，可以提高套裝感與開發效率，但前提是面料在不同版型上都成立。</p></div>
+          <div class="signal"><strong>先定風格後做 PCM</strong><p>Target Consumer、Product Style 和 Pattern Direction 未確認前，不應進入 PCM；否則後期定調後必然產生大面積返工。</p></div>
+          <div class="signal"><strong>Feedback 要批量而非碎片化</strong><p>零散反饋會讓同一批稿件反覆被推翻；每輪 review 應集中收集問題、一次處理，並明確優先級與決策人。</p></div>
+          <div class="signal"><strong>提案不能只給一個答案</strong><p>主推方案、商業安全方案與突破方案應同時出現，讓客戶或上級做選擇，而不是單方案被否後重頭再來。</p></div>
+          <div class="signal"><strong>主題要被品牌化</strong><p>故宮、田園、慢生活等主題都只是 Visual Story，最終必須回到 DLo 的 Product Style 與品牌 DNA。</p></div>
+          <div class="signal"><strong>Color Story 要有主次比例</strong><p>紅色、藍色、綠色、灰色不能平均分配；核心色需要明顯佔主導，輔助色和 highlight color 只做節奏補充。</p></div>
+          <div class="signal"><strong>Highlight Color 應落在細節</strong><p>3%-5% 的抽繩、車線、Branding、織帶和五金點綴，往往比大面積撞色更高級也更容易量產。</p></div>
+          <div class="signal"><strong>圖形鬆弛感需要留白</strong><p>拱門、水彩、田園圖案都不能填得太滿；留白、手繪筆觸和隨機線條是 DLo 治癒感的重要語言。</p></div>
+          <div class="signal"><strong>樣衣比 PPT 更能推動小批量市場決策</strong><p>香港 SM 這類區域項目需要可觸摸、可試穿、可講故事來源的實物樣品，不能只靠平面 presentation。</p></div>
+          <div class="signal"><strong>先判斷文化語境，再轉化元素</strong><p>腰果花、瓷磚、莊園、紅酒等靈感進入產品前，必須先確認原始語境與目標客群是否一致。</p></div>
+          <div class="signal"><strong>Color Story 要能指導搭配銷售</strong><p>顏色不是單色選擇，而是主色、基礎色、點綴色、過渡色和客群搭配邏輯的組合。</p></div>
+          <div class="signal"><strong>藝術家合作需要商業化轉譯</strong><p>尊重原作不等於原樣套用，服裝版型、面料、成人市場和產品差異化都需要有限度調整。</p></div>
+          <div class="signal"><strong>AI 洞察必須有人工閘口</strong><p>AI 可加速研究與歸納，但面料功能、消費者結論、價格帶和工藝可行性不能不經核查直接採用。</p></div>
+          <div class="signal"><strong>高品質基礎款是 DLo 的中間帶機會</strong><p>Core Consumer 願意為舒適、得體、質感和可負擔的高級感支付溢價。</p></div>
+          <div class="signal"><strong>Premium Red 要成為高端線簽名語言</strong><p>黑紅白不是配色而已，Premium Red 應通過漸變、五金、拉袢、內裡與小面積點綴形成可延展的高端識別。</p></div>
+          <div class="signal"><strong>高端化必須先有 Plan B</strong><p>紅黑漸變、羊毛面料、陽極氧化五金等高風險方案必須同步準備撞色、純黑或小面積紅色備案。</p></div>
+          <div class="signal"><strong>節日產品要從數據復盤反推設計</strong><p>紅色高售罄、黃色低轉化、庫存壓力和區域氣候都應在下一季設計前端被消化，而不是上市後才補救。</p></div>
+          <div class="signal"><strong>AI 圖案必須人工收斂</strong><p>雙旦與聖誕的 AI 圖若尺寸過大或元素過滿，必須由設計師刪減、重組和建立故事邏輯。</p></div>
+          <div class="signal"><strong>Premium 功能要對應真實尷尬</strong><p>抗味、抗皺、木質扣、片狀羽絨和防潑水都應直接回應辦公、差旅、安檢、小雨和溫差等真實痛點。</p></div>
+
+          <div class="signal"><strong>情緒價值要先於節日圖案</strong><p>雙旦產品先服務聚會、打卡、送禮、情侶與社群認同，再決定紅綠金、格仔、圍巾與圖案強度。</p></div>
+          <div class="signal"><strong>TRS Menu 是節日系列的底層系統</strong><p>格仔、絲帶、雪花、羊羔絨、植絨、可拆卸圍巾和織帶應先形成菜單，再分配到單款。</p></div>
+          <div class="signal"><strong>龍店高端識別要穩定四季</strong><p>圓標、Monogram、菱形變體與紅色細節必須連續使用，不能每季重建品牌語言。</p></div>
+          <div class="signal"><strong>Red Line 要控制比例</strong><p>紅色應像簽名一樣精準出現，太多會變促銷，太少則沒有識別。</p></div>
+          <div class="signal"><strong>CR1 評審要避免競品誤讀</strong><p>織帶比例、三格配色、金屬拉鏈和圓標數量都可能造成廉價感或品牌誤讀，必須在早期修正。</p></div>
+          <div class="signal"><strong>Premium 體驗從包裝開始</strong><p>高端產品不只靠成衣，labelling、吊牌、包裝袋、扣具和開箱感都要形成完整系統。</p></div>
+          <div class="signal"><strong>本地化小批量產品要低錯誤率</strong><p>語法、拼寫、標籤、贊助信息和球迷故事必須雙重核對，因為小錯誤會被放大。</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="signal-detail-page" id="signalDetailPage" aria-label="完整重複設計信號頁面">
+    <button class="back-button" id="backToDashboard" type="button">← 返回 Dashboard</button>
+    <div class="signal-detail-hero">
+      <h2>重複設計信號</h2>
+      <p>這裡集中展示所有從會議紀要中反覆出現的設計管理信號。它們不是單次會議意見，而是應該沉澱為設計規則、評審標準與團隊習慣的長期雷達。</p>
+    </div>
+    <div class="signal-detail-grid" id="signalDetailGrid"></div>
+  </section>
+
+  <section class="product-line-page" id="productLinePage" aria-label="產品線總覽頁面">
+    <button class="back-button back-home" type="button">← 返回 Dashboard</button>
+    <div class="signal-detail-hero">
+      <h2>產品線</h2>
+      <p>這裡按系列 / 產品線整合目前所有設計評論卡片，快速查看每條產品線的主要議題、設計焦點與需要優先管理的方向。</p>
+    </div>
+    <div class="product-line-grid" id="productLineGrid"></div>
+  </section>
+
+  <section class="meeting-page" id="meetingPage" aria-label="會議管理頁面">
+    <button class="back-button back-home" type="button">← 返回 Dashboard</button>
+    <div class="signal-detail-hero">
+      <h2>會議管理</h2>
+      <p>按日期由近至遠整理所有已整合會議，顯示每場會議沉澱出的評論卡片數量、主要議題和可追蹤方向。</p>
+    </div>
+    <div class="meeting-grid" id="meetingGrid"></div>
+  </section>
+
+  <section class="review-page" id="reviewPage" aria-label="設計評論頁面">
+    <button class="back-button back-home" type="button">← 返回 Dashboard</button>
+    <div class="signal-detail-hero">
+      <h2>設計評論</h2>
+      <p>集中查看全部設計評論卡片。卡片按會議日期由近至遠排列，方便快速進入最新決策與設計建議。</p>
+    </div>
+    <div class="cards" id="reviewCards"></div>
+  </section>
+
+  <section class="file-page" id="filePage" aria-label="檔案庫頁面">
+    <button class="back-button back-home" type="button">← 返回 Dashboard</button>
+    <div class="signal-detail-hero">
+      <h2>檔案庫</h2>
+      <p>這裡把 dashboard 目前使用的會議紀要與資料類型整理成檔案索引，方便後續補充 PDF、PPT、面料表、Color Story Board、TRS menu 與樣衣照片。</p>
+    </div>
+    <div class="file-grid" id="fileGrid"></div>
+  </section>
+
+  <footer id="pageFooter">
+        <div class="footer-banner">
+          <div class="footer-copy">LET’S BUILD<br>THE FUTURE TOGETHER <span class="orange-arrow"></span></div>
+          <div class="footer-visual" aria-hidden="true"></div>
+          <div class="footer-orange"><strong>WADE APPAREL</strong>設計驅動創新，細節成就品牌。</div>
+        </div>
+      </footer>
+
+  <script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const meetingFilter = $('meetingFilter');
+  const categoryFilter = $('categoryFilter');
+  const seasonFilter = $('seasonFilter');
+  const seriesFilter = $('seriesFilter');
+  const searchInput = $('search');
+  const cardsEl = $('cards');
+  const emptyEl = $('empty');
+
+  let detailedComments = [];
+
+  let comments = [];
+
+
+  const meetingNames = Array.from(document.querySelectorAll('.meeting-scroll p')).map((node) => node.textContent.trim());
+
+  const reviewTemplates = [
+    ['方向判斷', '需要把本次會議的設計方向轉化為清晰、可追蹤、可被團隊執行的判斷。', '先定義客群、場景、價位、系列角色和產品價值，再決定圖案、顏色、面料和工藝。', ['設計管理', '客群洞察']],
+    ['Graphics / 圖案', '圖案與視覺元素需要有來源、比例、工藝和產品關係，不能只停留在靈感圖片。', '把圖案拆成主圖、輔助元素、placement、顏色層級和量產工藝，確保能從 PPT 落到成衣。', ['Graphics / 圖案', '排版']],
+    ['色彩策略', '顏色不能只看單色好不好看，需要放進系列搭配、SKU、節日感和銷售場景中判斷。', '為每個顏色定義角色：主色、基礎色、點綴色、陳列色或 statement 色，並控制比例。', ['色彩', '配色']],
+    ['面料', '面料選擇需要同時回答觸感、功能、成本、供應、MOQ 和消費者可感知價值。', '新面料必須有故事卡與 Plan B；成熟面料則要說清楚為何仍然適合本季主題。', ['面料', '供應鏈']],
+    ['工藝 / 輔料', '工藝與輔料不能為了豐富而增加，必須服務產品價位、穿著舒適和系列識別。', '把提花、印花、刺繡、洗水、織帶、拉鏈和五金按價位分級，避免低價產品工藝過重。', ['工藝 / 輔料', '成本控制']],
+    ['版型比例', '版型與長度需要用試穿和搭配確認，不應只靠紙面效果或 AI 圖判斷。', '把短身、寬鬆、直筒、收腰、微寬鬆等比例放入真實穿著場景中檢查。', ['版型比例', '試穿']],
+    ['商品策略', '設計決策要同時考慮售價、GP、售罄、折扣、上市季節和庫存風險。', '每個重點款都要清楚回答：為什麼消費者願意買，為什麼可以正價賣，為什麼這個季節上。', ['商品策略', 'GP', '售罄']],
+    ['DO / DON’T', '需要把會議意見沉澱成可執行的 DO / DON’T，讓後續評審不再重複同一類問題。', '每場會議至少輸出一組可複用的設計規則，並在下一輪評審中檢查是否被落實。', ['設計規則', 'DO / DON’T']],
+    ['行動追蹤', '待辦事項需要有責任人、時間節點和回看方式，否則會議建議容易流失。', '把修改項拆成圖案、面料、版型、工藝、成本和樣辦節點，逐項追蹤。', ['行動追蹤', '會議管理']]
+  ];
+
+  function inferMeetingMeta(meeting) {
+    const lower = meeting.toLowerCase();
+    let productLine = '設計管理 / 系列評審';
+    let baseTags = ['設計管理'];
+    if (lower.includes('dlo')) { productLine = 'DLo 27SS / 系列設計'; baseTags = ['DLo', '27SS']; }
+    if (lower.includes('premium') || meeting.includes('龍店') || meeting.includes('高端')) { productLine = 'WADE Premium / 高端線'; baseTags = ['WADE Premium', '品牌識別', '面料']; }
+    if (meeting.includes('雙旦') || meeting.includes('聖誕') || lower.includes('christmas')) { productLine = '雙旦 / 聖誕包裹'; baseTags = ['雙旦', '聖誕', '色彩', 'Graphics / 圖案']; }
+    if (meeting.includes('CEO') || meeting.includes('品類策略')) { productLine = '籃球品類策略'; baseTags = ['商品策略', '品牌策略']; }
+    if (meeting.includes('Studio')) { productLine = 'WADE Studio / 系列設計'; baseTags = ['WADE Studio', '品牌識別', 'Graphics / 圖案']; }
+    if (meeting.includes('香港') || meeting.includes('球迷')) { productLine = '香港本地球迷款'; baseTags = ['香港本地球迷款', '版型比例', '文字標籤', '商品策略']; }
+    return { productLine, baseTags };
+  }
+
+  async function loadMeetingData() {
+    try {
+      const response = await fetch('meetings.json', { cache: 'no-store' });
+      if (!response.ok) throw new Error('Cannot load meetings.json: ' + response.status);
+      detailedComments = await response.json();
+    } catch (error) {
+      console.error(error);
+      detailedComments = [];
+      if (cardsEl) {
+        cardsEl.innerHTML = '<div class="empty" style="display:block">未能載入 meetings.json。請用 online hosting 或本機 server 開啟，例如：python3 -m http.server。</div>';
+      }
+    }
+
+    const detailedMeetingNames = new Set(detailedComments.map((comment) => comment.meeting));
+
+    const generatedMeetingComments = meetingNames.filter((meeting) => !detailedMeetingNames.has(meeting)).map((meeting, meetingIndex) => {
+      const meta = inferMeetingMeta(meeting);
+      return {
+        id: 'pending-' + String(meetingIndex + 1).padStart(2, '0'),
+        meeting,
+        productLine: meta.productLine + ' / 待補完整紀要',
+        issue: '此會議目前只保留在會議列表，未有完整原始紀要，因此不再使用模板生成具體評論。',
+        originalComment: meeting + '｜待補完整會議資料：提供原始紀要後，可升級為具體設計評論、DO / DON’T、責任人和時間節點。',
+        advise: '暫不以模板內容代替真實會議結論。建議補充會議總結、Bryan 評語、款號、問題、設計建議與待辦事項。',
+        action: '待補完整會議紀要後再生成具體卡片。',
+        tags: meta.baseTags.concat(['待補完整紀要'])
+      };
+    });
+
+    comments = detailedComments.concat(generatedMeetingComments);
+  }
+
+  function extractMeetingDate(meeting) {
+    const match = String(meeting).match(/(20[0-9]{2})[-年]([0-9]{1,2})[-月]([0-9]{1,2})/);
+    if (!match) return 0;
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])).getTime();
+  }
+
+  function sortByMeetingDateDesc(a, b) {
+    const diff = extractMeetingDate(b.meeting) - extractMeetingDate(a.meeting);
+    return diff || String(a.meeting).localeCompare(String(b.meeting), 'zh-Hant');
+  }
+
+  function classifyCard(comment) {
+    const text = [comment.meeting, comment.productLine, comment.issue, comment.advise].concat(comment.tags || []).join(' ');
+    const categoryRules = [
+      [/ASX195|短袖文化衫|文化衫/i, '短袖文化衫'],
+      [/ASX025|背心/i, '背心'],
+      [/ASX197|圖案 T|图案 T|T 恤|T恤/i, '圖案 T 恤'],
+      [/HHSX203|提花 T|提花T/i, '提花 T 恤'],
+      [/ASX201|洗水|噴馬騮|喷马骝/i, '洗水短袖'],
+      [/APLLX313|編織褲|编织裤/i, '編織褲'],
+      [/短褲|短裤|fake print|footprint/i, '短褲'],
+      [/小高領|小高领/i, '小高領'],
+      [/風褸|风褛|外套|夾克|夹克/i, '風褸 / 外套'],
+      [/羽絨背心|羽绒背心/i, '羽絨背心'],
+      [/羽絨服|羽绒服|棉服/i, '羽絨 / 棉服'],
+      [/衛衣|卫衣/i, '衛衣'],
+      [/衛褲|卫裤|長褲|长裤|西褲|西裤/i, '長褲 / 衛褲'],
+      [/長袖|長T|长袖|长T/i, '長袖 T 恤'],
+      [/短袖|短T|短 T/i, '短袖 T 恤'],
+      [/POLO|Polo/i, 'POLO 衫'],
+      [/冷衫|毛衫|針織|针织/i, '針織 / 冷衫'],
+      [/棒球褸|棒球外套|棒球衫|Varsity|Baseball/i, '棒球外套'],
+      [/假兩件|假两件/i, '假兩件外套'],
+      [/皮褸|皮褛|PU皮/i, '皮褸'],
+      [/面料|布料|羊毛|Tencel|天絲|申報|MOQ|泡泡紗|泡泡纱|樹皮紋|树皮纹/i, '面料'],
+      [/工藝|工艺|提花|織帶|织带|拉鏈|拉链|扣具|五金|刺繡|刺绣|印花|仿繡|仿绣|洗水/i, '工藝 / 輔料'],
+      [/色彩|顏色|颜色|Color|配色|紅|黑|灰|藍|綠/i, '色彩'],
+      [/Graphics|Graphic|圖案|图案|Logo|AI|水彩|排版|placement|Monogram|瓷磚|瓷砖|格仔/i, 'Graphics / 圖案'],
+      [/包裝|包装|吊牌|label|labelling/i, '包裝 / 吊牌'],
+      [/品牌|Red Line|圓標|圆标|識別|Signature Red/i, '品牌識別'],
+      [/客群|Consumer|洞察/i, '客群洞察'],
+      [/上市|季節|折扣|售罄|銷售|销售|庫存|库存|GP|毛利|商品/i, '商品策略'],
+      [/版型|試穿|比例|短身/i, '版型比例'],
+      [/行動|會議管理|責任人|節點/i, '行動追蹤']
+    ];
+    const matched = categoryRules.find((rule) => rule[0].test(text));
+    const category = matched ? matched[1] : '設計管理';
+
+    let season = '未標明季節';
+    if (/27SS|春|夏|SS|3月|6月/i.test(text)) season = '27SS / 春夏';
+    if (/Q4|聖誕|雙旦|Christmas|冬|羽絨/i.test(text)) season = 'Q4 / 秋冬 / 節日';
+    if (/27Q1|2027Q1|Q1|CNY|中國新年/i.test(text)) season = '27Q1';
+
+    let series = 'WADE apparel';
+    if (/DLo|Dlo/i.test(text)) series = 'DLo';
+    if (/Studio/i.test(text)) series = 'WADE Studio';
+    if (/Premium|龍店|Dragon|Red Line|高端/i.test(text)) series = 'WADE Premium / 龍店';
+    if (/雙旦|聖誕|Christmas/i.test(text)) series = '雙旦 / 聖誕包裹';
+    if (/CEO|品類策略|籃球服裝/i.test(text)) series = '籃球品類策略';
+    if (/香港|球迷/i.test(text)) series = '香港本地球迷款';
+
+    return { category, season, series, key: category + '｜' + season + '｜' + series };
+  }
+
+  function getDoDontSuggestion(comment) {
+    const text = [comment.issue, comment.advise].concat(comment.tags || []).join(' ');
+    if (/AI|水彩|生成圖/i.test(text)) return { doText: '用 AI 做方向探索、改圖和溝通；進入評審前必須確認版權、工藝、面料和量產還原。', dontText: '不要把純 AI 氛圍圖當作最終交付，也不要忽略版權與印花還原風險。' };
+    if (/面料|工藝|提花|織帶|洗水|印花|扣具|五金/i.test(text)) return { doText: '把功能、觸感、成本、MOQ、申報風險和消費者可感知價值一起評審。', dontText: '不要為了新奇而使用不可控工藝，也不要在未確認成本和供應前進入打版。' };
+    if (/色彩|顏色|紅|黑|綠|藍|灰/i.test(text)) return { doText: '先定義每個顏色的角色、比例、搭配對象和銷售場景。', dontText: '不要只用個人喜好保留顏色，也不要讓顏色失去系列邏輯。' };
+    return { doText: '把設計目的、客群場景、產品價值和落地方式說清楚，再推進樣板或評審。', dontText: '不要只用個人審美或單一靈感判斷設計。' };
+  }
+
+  function resetSelect(select, label) {
+    if (!select) return;
+    select.innerHTML = '';
+    const option = document.createElement('option');
+    option.value = 'all';
+    option.textContent = label;
+    select.appendChild(option);
+  }
+
+  function appendOptions(select, values) {
+    if (!select) return;
+    values.forEach((value) => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      select.appendChild(option);
+    });
+  }
+
+  function initFilters() {
+    resetSelect(meetingFilter, '全部會議');
+    resetSelect(categoryFilter, '全部產品中分類');
+    resetSelect(seasonFilter, '全部季節');
+    resetSelect(seriesFilter, '全部系列');
+    appendOptions(meetingFilter, Array.from(new Set(comments.map((c) => c.meeting))).sort((a, b) => extractMeetingDate(b) - extractMeetingDate(a) || a.localeCompare(b, 'zh-Hant')));
+    const taxonomies = comments.map(classifyCard);
+    appendOptions(categoryFilter, Array.from(new Set(taxonomies.map((t) => t.category))).sort((a, b) => a.localeCompare(b, 'zh-Hant')));
+    appendOptions(seasonFilter, Array.from(new Set(taxonomies.map((t) => t.season))).sort((a, b) => b.localeCompare(a, 'zh-Hant')));
+    appendOptions(seriesFilter, Array.from(new Set(taxonomies.map((t) => t.series))).sort((a, b) => a.localeCompare(b, 'zh-Hant')));
+  }
+
+  function renderCard(comment) {
+    const taxonomy = classifyCard(comment);
+    const doDont = getDoDontSuggestion(comment);
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.innerHTML = '<div class="card-top"><span class="meeting-name">' + comment.meeting + '</span><h3 class="product-line">' + taxonomy.category + '｜' + taxonomy.season + '｜' + taxonomy.series + '</h3><p class="issue">' + comment.issue + '</p></div>' +
+      '<div class="advise-grid"><div class="advise-box"><h4>建議</h4><p>' + comment.advise + '</p><div class="do-dont-grid"><div class="do-box"><h4>DO 建議做法</h4><p>' + doDont.doText + '</p></div><div class="dont-box"><h4>DON’T 避免做法</h4><p>' + doDont.dontText + '</p></div></div></div></div>' +
+      '<details><summary>查看原始會議意見</summary><p>' + comment.originalComment + '</p></details>';
+    return card;
+  }
+
+  function renderCards() {
+    const selectedMeeting = meetingFilter ? meetingFilter.value : 'all';
+    const selectedCategory = categoryFilter ? categoryFilter.value : 'all';
+    const selectedSeason = seasonFilter ? seasonFilter.value : 'all';
+    const selectedSeries = seriesFilter ? seriesFilter.value : 'all';
+    const search = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    const filtered = comments.filter((comment) => {
+      const taxonomy = classifyCard(comment);
+      const text = [comment.meeting, comment.productLine, taxonomy.category, taxonomy.season, taxonomy.series, comment.issue, comment.originalComment, comment.advise].concat(comment.tags || []).join(' ').toLowerCase();
+      return (selectedMeeting === 'all' || comment.meeting === selectedMeeting) &&
+        (selectedCategory === 'all' || taxonomy.category === selectedCategory) &&
+        (selectedSeason === 'all' || taxonomy.season === selectedSeason) &&
+        (selectedSeries === 'all' || taxonomy.series === selectedSeries) &&
+        (!search || text.includes(search));
+    }).sort(sortByMeetingDateDesc);
+    if (cardsEl) {
+      cardsEl.innerHTML = '';
+      filtered.forEach((comment) => cardsEl.appendChild(renderCard(comment)));
+    }
+    if (emptyEl) emptyEl.style.display = filtered.length ? 'none' : 'block';
+    if ($('totalCards')) $('totalCards').textContent = filtered.length;
+  }
+
+  function buildSignalDetailPage() {
+    const signals = Array.from(document.querySelectorAll('.signals .signal'));
+    if ($('totalSignals')) $('totalSignals').textContent = signals.length;
+    const grid = $('signalDetailGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    signals.forEach((signal, index) => {
+      const card = document.createElement('div');
+      card.className = 'signal';
+      card.innerHTML = '<strong>' + String(index + 1).padStart(2, '0') + '｜' + signal.querySelector('strong').textContent + '</strong><p>' + signal.querySelector('p').textContent + '</p>';
+      grid.appendChild(card);
+    });
+  }
+
+  function showDashboard() {
+    ['signalDetailPage', 'productLinePage', 'meetingPage', 'reviewPage', 'filePage'].forEach((id) => {
+      const node = $(id);
+      if (node) node.classList.remove('active');
+    });
+    if ($('dashboardPage')) $('dashboardPage').classList.remove('hidden');
+    if ($('pageFooter')) $('pageFooter').classList.remove('hidden');
+  }
+
+  function showSignalPage() {
+    if ($('dashboardPage')) $('dashboardPage').classList.add('hidden');
+    if ($('pageFooter')) $('pageFooter').classList.add('hidden');
+    if ($('signalDetailPage')) $('signalDetailPage').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  [meetingFilter, categoryFilter, seasonFilter, seriesFilter, searchInput].filter(Boolean).forEach((control) => {
+    control.addEventListener('input', renderCards);
+    control.addEventListener('change', renderCards);
+  });
+
+  document.querySelectorAll('#openSignalsStat, #openSignalsTitle').forEach((node) => node.addEventListener('click', showSignalPage));
+  document.querySelectorAll('.back-home, #backToDashboard').forEach((button) => button.addEventListener('click', showDashboard));
+
+  loadMeetingData().then(() => {
+    initFilters();
+    renderCards();
+    buildSignalDetailPage();
+  });
+})();
+</script>
+</body>
+</html>
