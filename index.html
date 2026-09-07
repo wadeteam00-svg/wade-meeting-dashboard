@@ -1156,7 +1156,8 @@
 
   async function loadMeetingData() {
     try {
-      const response = await fetch('meetings.json', { cache: 'no-store' });
+      let response = await fetch('/api/meetings', { cache: 'no-store' });
+      if (!response.ok) response = await fetch('meetings.json', { cache: 'no-store' });
       if (!response.ok) throw new Error('Cannot load meetings.json: ' + response.status);
       detailedComments = await response.json();
     } catch (error) {
@@ -1289,14 +1290,31 @@
     appendOptions(seriesFilter, Array.from(new Set(taxonomies.map((t) => t.series))).sort((a, b) => a.localeCompare(b, 'zh-Hant')));
   }
 
+  function escapeHTML(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[character]));
+  }
+
   function renderCard(comment) {
     const taxonomy = classifyCard(comment);
     const doDont = getDoDontSuggestion(comment);
     const card = document.createElement('article');
     card.className = 'card';
-    card.innerHTML = '<div class="card-top"><span class="meeting-name">' + comment.meeting + '</span><h3 class="product-line">' + taxonomy.category + '｜' + taxonomy.season + '｜' + taxonomy.series + '</h3><p class="issue">' + comment.issue + '</p></div>' +
-      '<div class="advise-grid"><div class="advise-box"><h4>建議</h4><p>' + comment.advise + '</p><div class="do-dont-grid"><div class="do-box"><h4>DO 建議做法</h4><p>' + doDont.doText + '</p></div><div class="dont-box"><h4>DON’T 避免做法</h4><p>' + doDont.dontText + '</p></div></div></div></div>' +
-      '<details><summary>查看原始會議意見</summary><p>' + comment.originalComment + '</p></details>';
+    const meeting = escapeHTML(comment.meeting);
+    const productLine = escapeHTML(taxonomy.category + '｜' + taxonomy.season + '｜' + taxonomy.series);
+    const issue = escapeHTML(comment.issue);
+    const advise = escapeHTML(comment.advise);
+    const doText = escapeHTML(doDont.doText);
+    const dontText = escapeHTML(doDont.dontText);
+    const originalComment = escapeHTML(comment.originalComment);
+    card.innerHTML = '<div class="card-top"><span class="meeting-name">' + meeting + '</span><h3 class="product-line">' + productLine + '</h3><p class="issue">' + issue + '</p></div>' +
+      '<div class="advise-grid"><div class="advise-box"><h4>建議</h4><p>' + advise + '</p><div class="do-dont-grid"><div class="do-box"><h4>DO 建議做法</h4><p>' + doText + '</p></div><div class="dont-box"><h4>DON’T 避免做法</h4><p>' + dontText + '</p></div></div></div></div>' +
+      '<details><summary>查看原始會議意見</summary><p>' + originalComment + '</p></details>';
     return card;
   }
 
