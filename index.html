@@ -818,7 +818,7 @@
       <div class="header-snapshot panel">
         <div class="panel-title-row"><h2>總覽快照</h2></div>
         <div class="stat-grid">
-          <div class="stat"><span class="label">目前整合會議</span><span class="number">45</span><span class="label">設計 / 策略會議</span></div>
+          <div class="stat"><span class="label">目前整合會議</span><span class="number" id="totalMeetings">0</span><span class="label">設計 / 策略會議</span></div>
           <div class="stat"><span class="label">設計評論卡片</span><span class="number" id="totalCards">0</span><span class="label">即時篩選結果</span></div>
           <div class="stat clickable-stat" id="openSignalsStat" role="button" tabindex="0" aria-label="查看完整重複設計信號"><span class="label">重複設計信號</span><span class="number" id="totalSignals">0</span><span class="label">需持續關注</span></div>
           <div class="stat emphasis"><span class="label">目前最重要的<br>管理重點</span><span class="number">03</span><span class="label">查看重點議題</span></div>
@@ -827,7 +827,7 @@
 
       <div class="meeting-meta panel">
         <div class="panel-title-row"><h2>目前整合會議</h2></div>
-        <strong>45 場設計 / 策略會議</strong>
+        <strong><span id="meetingCountText">0</span> 場設計 / 策略會議</strong>
         <div class="meeting-scroll">
           <p>2026-06-16｜Q3 及未來季度產品規劃與 At Pleasure 風格探討</p>
           <p>2026-06-16｜產品設計與開發會議：運動長褲與 T 恤</p>
@@ -876,7 +876,7 @@
       <div class="summary">
         <div class="summary-card">
           <h3>總匯設計判斷</h3>
-          <p>目前 dashboard 已整合 41 場設計 / 策略 / 流程復盤會議，全部以具體設計評論卡片呈現。整體判斷指向同一件事：WADE / DLo / 籃球服裝的產品設計需要從「設計師喜歡什麼」升級到「目標客群在具體場景中需要什麼」，並同時回應品牌健康度、折扣水平、上市季節、區域氣候、面料申報、流程效率與商業增長。</p>
+          <p>目前 dashboard 已整合 <span id="summaryMeetingCount">0</span> 場設計 / 策略 / 流程復盤會議，全部以具體設計評論卡片呈現。整體判斷指向同一件事：WADE / DLo / 籃球服裝的產品設計需要從「設計師喜歡什麼」升級到「目標客群在具體場景中需要什麼」，並同時回應品牌健康度、折扣水平、上市季節、區域氣候、面料申報、流程效率與商業增長。</p>
         </div>
         <div class="summary-card management-focus">
           <h3>目前最重要的管理重點</h3>
@@ -1338,6 +1338,10 @@
       filtered.forEach((comment) => cardsEl.appendChild(renderCard(comment)));
     }
     if (emptyEl) emptyEl.style.display = filtered.length ? 'none' : 'block';
+    const uniqueMeetingCount = new Set(comments.map((comment) => String(comment.meeting || '').trim()).filter(Boolean)).size;
+    if ($('totalMeetings')) $('totalMeetings').textContent = uniqueMeetingCount;
+    if ($('meetingCountText')) $('meetingCountText').textContent = uniqueMeetingCount;
+    if ($('summaryMeetingCount')) $('summaryMeetingCount').textContent = uniqueMeetingCount;
     if ($('totalCards')) $('totalCards').textContent = filtered.length;
   }
 
